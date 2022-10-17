@@ -1,5 +1,7 @@
 package com.thoughtworks.ebikecharger;
 
+import static com.thoughtworks.ebikecharger.Constants.HOUR_AS_MILLIS;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -29,6 +31,7 @@ public class Server implements Runnable {
                 String flag = message.getFlag();
                 if ("checkBike".equals(flag)) {
                   checkBikeStatus(new ObjectOutputStream(outputStream));
+                  Thread.sleep(3 * HOUR_AS_MILLIS);
                 } else if ("energyKnots".equals(flag)) {
                   EnergyMessage energyMessage = (EnergyMessage) message;
                   receiveEnergyKnots(energyMessage.getEnergyKnots());
@@ -40,7 +43,7 @@ public class Server implements Runnable {
                   receiveBorrower(plugInAndUserMessage.getUsername());
                 }
               }
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | InterruptedException e) {
               throw new RuntimeException(e);
             }
           }

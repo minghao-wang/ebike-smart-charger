@@ -1,6 +1,8 @@
 package com.thoughtworks.ebikecharger;
 
 
+import static com.thoughtworks.ebikecharger.Constants.HOUR_AS_MILLIS;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -14,7 +16,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class Charger implements Runnable {
 
-  public static final long HOUR_AS_MILLIS = 100;
   private static final long FULL_CHARGE_TIME = 8; // as hours
 
   // 插入电源的时间

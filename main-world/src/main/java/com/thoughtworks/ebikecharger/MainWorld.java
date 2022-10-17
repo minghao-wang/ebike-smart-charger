@@ -1,8 +1,9 @@
 package com.thoughtworks.ebikecharger;
 
+import static com.thoughtworks.ebikecharger.Constants.HOUR_AS_MILLIS;
+
 public class MainWorld {
 
-  public static final long HOUR_AS_MILLIS = 100;
 
   public static void main(String[] args) throws InterruptedException {
     Server server = new Server();
@@ -27,15 +28,23 @@ public class MainWorld {
       } catch (InterruptedException ignore) {
       }
       System.out.println("一个半小时后，小李起床检查电动车状态");
+      long l = System.currentTimeMillis();
       li.checkBike();
+      if (System.currentTimeMillis() - l > 150) {
+        System.out.println("小李：我等到花都谢了");
+      }
     }).start();
     new Thread(() -> {
       try {
-        Thread.sleep((long) (0.5 * HOUR_AS_MILLIS));
+        Thread.sleep((long) (1.5 * HOUR_AS_MILLIS));
       } catch (InterruptedException ignore) {
       }
-      System.out.println("半小时后，小刘结束了晨练，检查电动车状态");
+      System.out.println("一个半小时后，小刘结束了晨练，检查电动车状态");
+      long l = System.currentTimeMillis();
       liu.checkBike();
+      if (System.currentTimeMillis() - l > 150) {
+        System.out.println("小刘：我等到花都谢了");
+      }
     }).start();
     System.out.println("环境将在30个小时后关闭");
     Thread.sleep(30 * HOUR_AS_MILLIS);
