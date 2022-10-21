@@ -19,26 +19,24 @@ public class MobileApp {
   }
 
   public void checkBike() {
-    synchronized (MobileApp.class) {
-      try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
-        try (InputStream inputStream = socket.getInputStream()) {
-          try (OutputStream outputStream = socket.getOutputStream()) {
-            try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-              Message message = new Message();
-              message.setFlag("checkBike");
-              objectOutputStream.writeObject(message);
-              objectOutputStream.flush();
-              try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
-                String threadName = Thread.currentThread().getName();
-                String s = (String) objectInputStream.readObject();
-                System.out.printf("[%s]%s正在检查电动车状态：%s\n", threadName, username, s);
-              }
+    try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+      try (InputStream inputStream = socket.getInputStream()) {
+        try (OutputStream outputStream = socket.getOutputStream()) {
+          try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+            Message message = new Message();
+            message.setFlag("checkBike");
+            objectOutputStream.writeObject(message);
+            objectOutputStream.flush();
+            try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+              String threadName = Thread.currentThread().getName();
+              String s = (String) objectInputStream.readObject();
+              System.out.printf("[%s]%s正在检查电动车状态：%s\n", threadName, username, s);
             }
           }
         }
-      } catch (IOException | ClassNotFoundException e) {
-        throw new RuntimeException(e);
       }
+    } catch (IOException | ClassNotFoundException e) {
+      throw new RuntimeException(e);
     }
   }
 

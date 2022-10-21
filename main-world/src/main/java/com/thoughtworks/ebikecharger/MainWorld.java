@@ -2,10 +2,12 @@ package com.thoughtworks.ebikecharger;
 
 import static com.thoughtworks.ebikecharger.Constants.HOUR_AS_MILLIS;
 
+import java.io.IOException;
+
 public class MainWorld {
 
 
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) throws InterruptedException, IOException {
     Server server = new Server();
     new Thread(server).start();
     Charger charger = new Charger();
@@ -47,7 +49,7 @@ public class MainWorld {
       }
     }).start();
     System.out.println("环境将在30个小时后关闭");
-    Thread.sleep(30 * HOUR_AS_MILLIS);
+    Thread.sleep(10 * HOUR_AS_MILLIS);
     System.exit(0);
   }
 
