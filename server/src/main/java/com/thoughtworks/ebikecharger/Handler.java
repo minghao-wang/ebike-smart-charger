@@ -9,14 +9,18 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Handler implements Runnable{
 
   private final Socket accept;
-
-  private final Object lock = new Object();
+  
   private static boolean electricityStatus = false;
+  private final ReadWriteLock electricityReadWriteLock=new ReentrantReadWriteLock();
+
   private static String borrower = "";
+  private final ReadWriteLock borrowerReadWriteLock=new ReentrantReadWriteLock();
 
   public Handler(Socket accept) {
     this.accept = accept;
@@ -52,42 +56,50 @@ public class Handler implements Runnable{
   }
 
   public void receivePlugEvent(boolean plugIn) {
+    electricityReadWriteLock.writeLock().lock();
     electricityStatus = plugIn;
+    electricityReadWriteLock.writeLock().unlock();
+    electricityReadWriteLock.readLock().lock();
     if (electricityStatus) {
       System.out.println("[Server日志][电动车]：进入充电状态");
     } else {
       System.out.println("[Server日志][电动车]：解除充电状态");
     }
+    electricityReadWriteLock.readLock().unlock();
   }
 
   private void receiveEnergyKnots(List<Integer> energyKnots) {
+    electricityReadWriteLock.readLock().lock();
     if (electricityStatus) {
       System.out.println("[Server日志][电动车]当前的充电功率曲线为:" + energyKnots.toString());
     }
+    electricityReadWriteLock.readLock().unlock();
   }
 
   private void checkBikeStatus(ObjectOutputStream objectOutputStream) throws IOException {
     StringBuilder res = new StringBuilder();
+    electricityReadWriteLock.readLock().lock();
     if (electricityStatus) {
       res.append("电动车正在充电");
     } else {
       res.append("电动车未处于充电状态");
     }
+    electricityReadWriteLock.readLock().unlock();
     res.append(",");
-    synchronized (lock) {
-      if (borrower.length() == 0) {
-        res.append("目前电动车处于闲置状态");
-      } else {
-        res.append(String.format("目前%s正在使用电动车", borrower));
-      }
+    borrowerReadWriteLock.readLock().lock();
+    if (borrower.length() == 0) {
+      res.append("目前电动车处于闲置状态");
+    } else {
+      res.append(String.format("目前%s正在使用电动车", borrower));
     }
+    borrowerReadWriteLock.readLock().unlock();
     objectOutputStream.writeObject(res.toString());
   }
 
   public void receiveBorrower(String username) {
-    synchronized (lock) {
-      System.out.printf("已经上报%s\n", username);
-      borrower = username;
-    }
+    borrowerReadWriteLock.writeLock().lock();
+    System.out.printf("已经上报%s\n", username);
+    borrower = username;
+    borrowerReadWriteLock.writeLock().unlock();
   }
 }
