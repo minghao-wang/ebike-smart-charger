@@ -3,6 +3,7 @@ package com.thoughtworks.ebikecharger;
 
 import static com.thoughtworks.ebikecharger.Constants.HOUR_AS_MILLIS;
 
+import com.alibaba.fastjson.JSON;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -23,12 +24,7 @@ public class Charger implements Runnable {
 
   private final AtomicBoolean isPlugged = new AtomicBoolean(false);
 
-
   private final Object lock = new Object();
-
-  public Charger() {
-
-  }
 
   public void plugIn() {
     synchronized (lock) {
@@ -56,10 +52,9 @@ public class Charger implements Runnable {
           try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
             try (OutputStream outputStream = socket.getOutputStream()) {
               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-                EnergyMessage energyMessage = new EnergyMessage();
-                energyMessage.setFlag("energyKnots");
-                energyMessage.setEnergyKnots(generateEnergyKnots(System.currentTimeMillis(), pluggedInTime.get()));
-                objectOutputStream.writeObject(energyMessage);
+                String energyKnostJson = JSON.toJSONString(generateEnergyKnots(System.currentTimeMillis(), pluggedInTime.get()));
+                RequestBody requestBody = RequestBody.post("/charger/energyKnots",energyKnostJson);
+                objectOutputStream.writeObject(requestBody);
                 objectOutputStream.flush();
               }
             } catch (IOException e) {
@@ -96,11 +91,9 @@ public class Charger implements Runnable {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           System.out.println("[Charger日志][充电器]：检测到电源插入");
 
-          PlugInAndUserMessage plugInAndUserMessage = new PlugInAndUserMessage();
-          plugInAndUserMessage.setFlag("plugIn");
-          plugInAndUserMessage.setUsername("");
-          plugInAndUserMessage.setPlugIn(true);
-          objectOutputStream.writeObject(plugInAndUserMessage);
+          RequestBody requestBody = RequestBody.post("/charger/status", "plugIn");
+
+          objectOutputStream.writeObject(requestBody);
           objectOutputStream.flush();
         }
       } catch (IOException e) {
@@ -116,11 +109,10 @@ public class Charger implements Runnable {
       try (OutputStream outputStream = socket.getOutputStream()) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           System.out.println("[Charger日志][充电器]：检测到电源拔出");
-          PlugInAndUserMessage plugInAndUserMessage = new PlugInAndUserMessage();
-          plugInAndUserMessage.setFlag("plugIn");
-          plugInAndUserMessage.setPlugIn(false);
 
-          objectOutputStream.writeObject(plugInAndUserMessage);
+          RequestBody requestBody = RequestBody.post("/charger/status", "plugOut");
+
+          objectOutputStream.writeObject(requestBody);
           objectOutputStream.flush();
         }
       } catch (IOException e) {

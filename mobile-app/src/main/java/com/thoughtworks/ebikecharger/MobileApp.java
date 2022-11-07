@@ -18,14 +18,13 @@ public class MobileApp {
     this.username = username;
   }
 
+  // 请求获取bike的状态
   public void checkBike() {
     try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
       try (InputStream inputStream = socket.getInputStream()) {
         try (OutputStream outputStream = socket.getOutputStream()) {
           try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-            Message message = new Message();
-            message.setFlag("checkBike");
-            objectOutputStream.writeObject(message);
+            objectOutputStream.writeObject(RequestBody.get("/bike/status"));
             objectOutputStream.flush();
             try (ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
               String threadName = Thread.currentThread().getName();
@@ -40,15 +39,13 @@ public class MobileApp {
     }
   }
 
+  // 请求修改bike的状态
   public void reportBorrower() {
     synchronized (MobileApp.class) {
       try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
         try (OutputStream outputStream = socket.getOutputStream()) {
           try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
-            PlugInAndUserMessage plugInAndUserMessage = new PlugInAndUserMessage();
-            plugInAndUserMessage.setFlag("reportBorrower");
-            plugInAndUserMessage.setUsername(username);
-            objectOutputStream.writeObject(plugInAndUserMessage);
+            objectOutputStream.writeObject(RequestBody.post("/bike/status", username));
             objectOutputStream.flush();
           }
         } catch (IOException e) {
