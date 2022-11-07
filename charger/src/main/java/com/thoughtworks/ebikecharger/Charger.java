@@ -49,7 +49,7 @@ public class Charger implements Runnable {
     while (true) {
       if (isPlugged()) {
         synchronized (lock) {
-          try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+          try (Socket socket = new Socket(InetAddress.getByName(Constants.INET_ADDRESS), Constants.PORT)) {
             try (OutputStream outputStream = socket.getOutputStream()) {
               try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
                 String energyKnostJson = JSON.toJSONString(generateEnergyKnots(System.currentTimeMillis(), pluggedInTime.get()));
@@ -86,7 +86,7 @@ public class Charger implements Runnable {
   }
 
   private void sendPlugInEvent() {
-    try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+    try (Socket socket = new Socket(InetAddress.getByName(Constants.INET_ADDRESS), Constants.PORT)) {
       try (OutputStream outputStream = socket.getOutputStream()) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           System.out.println("[Charger日志][充电器]：检测到电源插入");
@@ -105,7 +105,7 @@ public class Charger implements Runnable {
   }
 
   private void sendPlugOutEvent() {
-    try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+    try (Socket socket = new Socket(InetAddress.getByName(Constants.INET_ADDRESS), Constants.PORT)) {
       try (OutputStream outputStream = socket.getOutputStream()) {
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
           System.out.println("[Charger日志][充电器]：检测到电源拔出");

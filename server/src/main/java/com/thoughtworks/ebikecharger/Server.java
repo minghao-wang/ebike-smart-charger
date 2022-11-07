@@ -16,7 +16,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Server implements Runnable {
 
-  ServerSocket serverSocket = new ServerSocket(9090);
+  ServerSocket serverSocket = new ServerSocket(Constants.PORT);
 
   private boolean electricityStatus = false;
 

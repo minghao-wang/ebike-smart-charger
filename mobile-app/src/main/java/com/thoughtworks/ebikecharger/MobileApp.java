@@ -20,7 +20,7 @@ public class MobileApp {
 
   // 请求获取bike的状态
   public void checkBike() {
-    try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+    try (Socket socket = new Socket(InetAddress.getByName(Constants.INET_ADDRESS), Constants.PORT)) {
       try (InputStream inputStream = socket.getInputStream()) {
         try (OutputStream outputStream = socket.getOutputStream()) {
           try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
@@ -42,7 +42,7 @@ public class MobileApp {
   // 请求修改bike的状态
   public void reportBorrower() {
     synchronized (MobileApp.class) {
-      try (Socket socket = new Socket(InetAddress.getByName("127.0.0.1"), 9090)) {
+      try (Socket socket = new Socket(InetAddress.getByName(Constants.INET_ADDRESS), Constants.PORT)) {
         try (OutputStream outputStream = socket.getOutputStream()) {
           try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
             objectOutputStream.writeObject(RequestBody.post("/bike/status", username));
