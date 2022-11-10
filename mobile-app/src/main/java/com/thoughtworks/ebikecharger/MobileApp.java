@@ -13,6 +13,10 @@ public class MobileApp {
 
   private final String username;
 
+  public static void main(String[] args) {
+    new MobileApp("tester").checkBike();
+  }
+
 
   public MobileApp(String username) {
     this.username = username;
